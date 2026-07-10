@@ -1,0 +1,222 @@
+<div class="container">
+  <div class="form-card">
+    <div class="form-header">
+      <div class="logo">
+        <span class="logo-icon">&#128221;</span>
+      </div>
+      <h1>Formulario de Registro</h1>
+      <p class="subtitle">Taller de Formularios Reactivos &mdash; SENA</p>
+    </div>
+
+    <!-- RESUMEN DE DATOS -->
+    <div *ngIf="enviado && datosRegistrados" class="resumen-container">
+      <div class="resumen-header">
+        <span class="check-icon">&#10004;</span>
+        <h2>Registro Exitoso</h2>
+      </div>
+      <div class="resumen-body">
+        <p class="resumen-subtitle">Datos registrados:</p>
+        <table class="resumen-table">
+          <tr>
+            <td class="label">Nombre completo</td>
+            <td class="value">{{ datosRegistrados.nombreCompleto }}</td>
+          </tr>
+          <tr>
+            <td class="label">Correo electr&oacute;nico</td>
+            <td class="value">{{ datosRegistrados.correoElectronico }}</td>
+          </tr>
+          <tr>
+            <td class="label">Nombre de usuario</td>
+            <td class="value">{{ datosRegistrados.nombreUsuario }}</td>
+          </tr>
+          <tr>
+            <td class="label">Edad</td>
+            <td class="value">{{ datosRegistrados.edad }} a&ntilde;os</td>
+          </tr>
+          <tr>
+            <td class="label">T&eacute;rminos y condiciones</td>
+            <td class="value">{{ datosRegistrados.terminosCondiciones ? 'Aceptados' : 'No aceptados' }}</td>
+          </tr>
+        </table>
+        <button class="btn btn-secondary" (click)="reiniciarFormulario()">
+          Registrar otro usuario
+        </button>
+      </div>
+    </div>
+
+    <!-- FORMULARIO -->
+    <form *ngIf="!enviado" [formGroup]="registroForm" (ngSubmit)="onSubmit()" novalidate>
+
+      <!-- NOMBRE COMPLETO -->
+      <div class="form-group">
+        <label for="nombreCompleto">Nombre completo</label>
+        <input
+          id="nombreCompleto"
+          type="text"
+          formControlName="nombreCompleto"
+          [class.is-invalid]="f['nombreCompleto'].touched && f['nombreCompleto'].invalid"
+          [class.is-valid]="f['nombreCompleto'].touched && f['nombreCompleto'].valid"
+          placeholder="Ingrese su nombre completo">
+        <div class="error-messages" *ngIf="f['nombreCompleto'].touched && f['nombreCompleto'].errors">
+          <span *ngIf="f['nombreCompleto'].errors?.['required']">
+            El nombre completo es obligatorio.
+          </span>
+          <span *ngIf="f['nombreCompleto'].errors?.['minlength']">
+            M&iacute;nimo 3 caracteres.
+          </span>
+        </div>
+      </div>
+
+      <!-- CORREO ELECTRONICO -->
+      <div class="form-group">
+        <label for="correoElectronico">Correo electr&oacute;nico</label>
+        <input
+          id="correoElectronico"
+          type="email"
+          formControlName="correoElectronico"
+          [class.is-invalid]="f['correoElectronico'].touched && f['correoElectronico'].invalid"
+          [class.is-valid]="f['correoElectronico'].touched && f['correoElectronico'].valid"
+          placeholder="ejemplo@correo.com">
+        <div class="error-messages" *ngIf="f['correoElectronico'].touched && f['correoElectronico'].errors">
+          <span *ngIf="f['correoElectronico'].errors?.['required']">
+            El correo electr&oacute;nico es obligatorio.
+          </span>
+          <span *ngIf="f['correoElectronico'].errors?.['email']">
+            Ingrese un correo electr&oacute;nico v&aacute;lido.
+          </span>
+        </div>
+      </div>
+
+      <!-- NOMBRE DE USUARIO -->
+      <div class="form-group">
+        <label for="nombreUsuario">Nombre de usuario</label>
+        <input
+          id="nombreUsuario"
+          type="text"
+          formControlName="nombreUsuario"
+          [class.is-invalid]="f['nombreUsuario'].touched && f['nombreUsuario'].invalid"
+          [class.is-valid]="f['nombreUsuario'].touched && f['nombreUsuario'].valid"
+          placeholder="Solo letras, n&uacute;meros y guion bajo">
+        <div class="error-messages" *ngIf="f['nombreUsuario'].touched && f['nombreUsuario'].errors">
+          <span *ngIf="f['nombreUsuario'].errors?.['required']">
+            El nombre de usuario es obligatorio.
+          </span>
+          <span *ngIf="f['nombreUsuario'].errors?.['pattern']">
+            Solo se permiten letras, n&uacute;meros y guion bajo (_).
+          </span>
+        </div>
+      </div>
+
+      <!-- CONTRASENA -->
+      <div class="form-group">
+        <label for="contrasena">Contrase&ntilde;a</label>
+        <div class="password-wrapper">
+          <input
+            id="contrasena"
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="contrasena"
+            [class.is-invalid]="f['contrasena'].touched && f['contrasena'].invalid"
+            [class.is-valid]="f['contrasena'].touched && f['contrasena'].valid"
+            (input)="evaluarFortalezaContrasena()"
+            placeholder="M&iacute;nimo 8 caracteres">
+          <button type="button" class="toggle-password" (click)="togglePassword()">
+            {{ showPassword ? '&#128065;' : '&#128064;' }}
+          </button>
+        </div>
+        <div class="error-messages" *ngIf="f['contrasena'].touched && f['contrasena'].errors">
+          <span *ngIf="f['contrasena'].errors?.['required']">
+            La contrase&ntilde;a es obligatoria.
+          </span>
+          <span *ngIf="f['contrasena'].errors?.['minlength']">
+            M&iacute;nimo 8 caracteres.
+          </span>
+        </div>
+        <!-- Indicador de fortaleza -->
+        <div *ngIf="passwordStrength" class="strength-indicator">
+          <div class="strength-bar">
+            <div class="strength-fill" [ngClass]="passwordStrengthClass"></div>
+          </div>
+          <span class="strength-text" [ngClass]="passwordStrengthClass">
+            Fortaleza: {{ passwordStrength }}
+          </span>
+        </div>
+      </div>
+
+      <!-- CONFIRMAR CONTRASENA -->
+      <div class="form-group">
+        <label for="confirmarContrasena">Confirmar contrase&ntilde;a</label>
+        <div class="password-wrapper">
+          <input
+            id="confirmarContrasena"
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            formControlName="confirmarContrasena"
+            [class.is-invalid]="(f['confirmarContrasena'].touched && f['confirmarContrasena'].invalid) || (registroForm.errors?.['contrasenasNoCoinciden'] && f['confirmarContrasena'].touched)"
+            [class.is-valid]="f['confirmarContrasena'].touched && f['confirmarContrasena'].valid && !registroForm.errors?.['contrasenasNoCoinciden']"
+            placeholder="Repita su contrase&ntilde;a">
+          <button type="button" class="toggle-password" (click)="toggleConfirmPassword()">
+            {{ showConfirmPassword ? '&#128065;' : '&#128064;' }}
+          </button>
+        </div>
+        <div class="error-messages" *ngIf="f['confirmarContrasena'].touched && f['confirmarContrasena'].errors">
+          <span *ngIf="f['confirmarContrasena'].errors?.['required']">
+            Confirmar contrase&ntilde;a es obligatorio.
+          </span>
+        </div>
+        <div class="error-messages" *ngIf="f['confirmarContrasena'].touched && registroForm.errors?.['contrasenasNoCoinciden']">
+          <span>Las contrase&ntilde;as no coinciden.</span>
+        </div>
+      </div>
+
+      <!-- EDAD -->
+      <div class="form-group">
+        <label for="edad">Edad</label>
+        <input
+          id="edad"
+          type="number"
+          formControlName="edad"
+          [class.is-invalid]="f['edad'].touched && f['edad'].invalid"
+          [class.is-valid]="f['edad'].touched && f['edad'].valid"
+          placeholder="Entre 15 y 90 a&ntilde;os">
+        <div class="error-messages" *ngIf="f['edad'].touched && f['edad'].errors">
+          <span *ngIf="f['edad'].errors?.['required']">
+            La edad es obligatoria.
+          </span>
+          <span *ngIf="f['edad'].errors?.['min']">
+            La edad m&iacute;nima es 15 a&ntilde;os.
+          </span>
+          <span *ngIf="f['edad'].errors?.['max']">
+            La edad m&aacute;xima es 90 a&ntilde;os.
+          </span>
+        </div>
+      </div>
+
+      <!-- TERMINOS Y CONDICIONES -->
+      <div class="form-group checkbox-group">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            formControlName="terminosCondiciones"
+            [class.is-invalid]="f['terminosCondiciones'].touched && f['terminosCondiciones'].invalid">
+          <span class="checkmark"></span>
+          <span class="checkbox-text">
+            Acepto los <a href="javascript:void(0)">t&eacute;rminos y condiciones</a>
+          </span>
+        </label>
+        <div class="error-messages" *ngIf="f['terminosCondiciones'].touched && f['terminosCondiciones'].errors">
+          <span *ngIf="f['terminosCondiciones'].errors?.['required']">
+            Debe aceptar los t&eacute;rminos y condiciones.
+          </span>
+        </div>
+      </div>
+
+      <!-- BOTON SUBMIT -->
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="registroForm.invalid">
+        Registrarse
+      </button>
+
+    </form>
+  </div>
+</div>
