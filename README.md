@@ -10,8 +10,8 @@ Proyecto angular construido con **Angular 17** utilizando arquitectura modular t
 ## Instalación
 
 ```bash
-git clone https://github.com/usuario/taller-formularios-reactivos.git
-cd taller-formularios-reactivos
+git clone https://github.com/alejandroalzatesena-arch/-app-forms-reactive-angular.git
+cd app-forms-reactive-angular.git
 npm install
 ```
 
